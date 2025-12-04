@@ -7,10 +7,10 @@ type KPICardsProps = {
 
 export function KPICards({ totalPacks, avgVersion, successRate, totalExecutions }: KPICardsProps) {
   const cards = [
-    { label: "Total Packs", value: totalPacks, color: "#4f46e5" },
-    { label: "Avg Version", value: `v${avgVersion.toFixed(1)}`, color: "#22c55e" },
-    { label: "Success Rate", value: `${(successRate * 100).toFixed(0)}%`, color: "#f59e0b" },
-    { label: "Executions", value: totalExecutions, color: "#ef4444" },
+    { label: "Total Cities", value: totalPacks, color: "#4f46e5" },
+    { label: "Avg Retention", value: `${avgVersion.toFixed(0)}%`, color: "#22c55e" },
+    { label: "Avg NPS", value: `${(successRate * 100).toFixed(0)}`, color: "#f59e0b" },
+    { label: "Total Talent", value: totalExecutions, color: "#ef4444" },
   ];
 
   return (
