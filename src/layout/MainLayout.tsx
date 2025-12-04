@@ -23,6 +23,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     { path: "/docs", label: "Docs", icon: "📄" },
     { path: "/automation", label: "Automation", icon: "⚡" },
     { path: "/settings", label: "Settings", icon: "⚙️" },
+    { path: "/marketplace", label: "Marketplace", icon: "🛒" },
   ];
 
   return (
