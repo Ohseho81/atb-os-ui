@@ -8,6 +8,7 @@ import { DocsPage } from "./pages/DocsPage";
 import { AutomationPage } from "./pages/AutomationPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { MarketplacePage } from "./pages/MarketplacePage";
+import { OsHealthPage } from "./pages/OsHealthPage";
 
 export function AppRouter() {
   return (
@@ -23,6 +24,7 @@ export function AppRouter() {
           <Route path="/automation" element={<AutomationPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/marketplace" element={<MarketplacePage />} />
+          <Route path="/os-health" element={<OsHealthPage />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>
