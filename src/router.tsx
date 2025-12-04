@@ -1,0 +1,26 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { MainLayout } from "./layout/MainLayout";
+import { GlobalTwinPage } from "./pages/GlobalTwinPage";
+import { OrgPage } from "./pages/OrgPage";
+import { TalentPage } from "./pages/TalentPage";
+import { DocsPage } from "./pages/DocsPage";
+import { AutomationPage } from "./pages/AutomationPage";
+import { SettingsPage } from "./pages/SettingsPage";
+
+export function AppRouter() {
+  return (
+    <BrowserRouter>
+      <MainLayout>
+        <Routes>
+          <Route path="/" element={<Navigate to="/city" />} />
+          <Route path="/city" element={<GlobalTwinPage />} />
+          <Route path="/org" element={<OrgPage />} />
+          <Route path="/talent" element={<TalentPage />} />
+          <Route path="/docs" element={<DocsPage />} />
+          <Route path="/automation" element={<AutomationPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Routes>
+      </MainLayout>
+    </BrowserRouter>
+  );
+}
