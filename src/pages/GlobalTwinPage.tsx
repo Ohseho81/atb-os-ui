@@ -1,40 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const mockCities = [
-  { id: "clark", name: "Clark", kpi: { retention: 0.82, visaApproval: 0.9, nps: 0.88 } },
-  { id: "kathmandu", name: "Kathmandu", kpi: { retention: 0.76, visaApproval: 0.84, nps: 0.9 } },
-  { id: "seoul", name: "Seoul", kpi: { retention: 0.9, visaApproval: 0.95, nps: 0.92 } },
-];
+type PackData = {
+  version: string;
+  executions: number;
+  success_rate: number;
+};
+
+type EvolutionStatus = {
+  total_packs: number;
+  packs: Record<string, PackData>;
+};
 
 export function GlobalTwinPage() {
-  const [selectedCityId, setSelectedCityId] = useState("clark");
-  const selectedCity = mockCities.find((c) => c.id === selectedCityId) ?? mockCities[0];
+  const [data, setData] = useState<EvolutionStatus | null>(null);
+  const [selectedPack, setSelectedPack] = useState<string>("school");
+
+  useEffect(() => {
+    fetch("http://localhost:8001/evolution/status")
+      .then((res) => res.json())
+      .then((json) => setData(json))
+      .catch((err) => console.error(err));
+  }, []);
+
+  if (!data) return <div style={{ padding: 24 }}>Loading...</div>;
+
+  const packList = Object.entries(data.packs);
+  const selected = data.packs[selectedPack];
 
   return (
     <div style={{ display: "flex", height: "100%" }}>
-      <div style={{ flex: 3, background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", gap: 40 }}>
-          {mockCities.map((city) => (
-            <div key={city.id} onClick={() => setSelectedCityId(city.id)} style={{
-              width: 80 + city.kpi.retention * 40,
-              height: 80 + city.kpi.retention * 40,
-              borderRadius: "50%",
-              background: selectedCityId === city.id ? "#4f46e5" : "#6366f1",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#fff", cursor: "pointer", transition: "all 0.3s"
-            }}>
-              {city.name}
+      <div style={{ flex: 3, background: "#1a1a2e", padding: 24, overflow: "auto" }}>
+        <h3 style={{ color: "#fff", marginTop: 0 }}>Autus Pack Evolution ({data.total_packs} Packs)</h3>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+          {packList.map(([id, pack]) => (
+            <div
+              key={id}
+              onClick={() => setSelectedPack(id)}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: "50%",
+                background: selectedPack === id ? "#4f46e5" : "#6366f1",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                cursor: "pointer",
+                transition: "all 0.3s",
+                fontSize: 12,
+              }}
+            >
+              <div style={{ fontWeight: 700 }}>{id}</div>
+              <div>{pack.version}</div>
             </div>
           ))}
         </div>
       </div>
       <div style={{ flex: 1, padding: 24, borderLeft: "1px solid #eee" }}>
-        <h2 style={{ marginTop: 0 }}>{selectedCity.name}</h2>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          <li style={{ marginBottom: 12 }}>Retention: {(selectedCity.kpi.retention * 100).toFixed(1)}%</li>
-          <li style={{ marginBottom: 12 }}>Visa Approval: {(selectedCity.kpi.visaApproval * 100).toFixed(1)}%</li>
-          <li style={{ marginBottom: 12 }}>NPS: {(selectedCity.kpi.nps * 100).toFixed(1)}%</li>
-        </ul>
+        <h2 style={{ marginTop: 0, textTransform: "capitalize" }}>{selectedPack} Pack</h2>
+        {selected && (
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            <li style={{ marginBottom: 12 }}>Version: <strong>{selected.version}</strong></li>
+            <li style={{ marginBottom: 12 }}>Executions: <strong>{selected.executions}</strong></li>
+            <li style={{ marginBottom: 12 }}>Success Rate: <strong>{(selected.success_rate * 100).toFixed(1)}%</strong></li>
+          </ul>
+        )}
       </div>
     </div>
   );
