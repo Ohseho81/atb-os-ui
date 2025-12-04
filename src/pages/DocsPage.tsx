@@ -1,83 +1,109 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-type Doc = {
+type Pack = {
   id: string;
   name: string;
-  type: "visa" | "contract" | "certificate" | "medical";
-  status: "pending" | "approved" | "rejected";
-  talentName: string;
-  updatedAt: string;
-};
-
-const mockDocs: Doc[] = [
-  { id: "d1", name: "E-9 Visa Application", type: "visa", status: "pending", talentName: "Juan Santos", updatedAt: "2024-12-04" },
-  { id: "d2", name: "Employment Contract", type: "contract", status: "approved", talentName: "Raj Sharma", updatedAt: "2024-12-03" },
-  { id: "d3", name: "Training Certificate", type: "certificate", status: "approved", talentName: "Kim Min-jun", updatedAt: "2024-12-02" },
-  { id: "d4", name: "Medical Checkup", type: "medical", status: "pending", talentName: "Maria Garcia", updatedAt: "2024-12-04" },
-  { id: "d5", name: "E-9 Visa Application", type: "visa", status: "rejected", talentName: "Suman Thapa", updatedAt: "2024-12-01" },
-  { id: "d6", name: "Employment Contract", type: "contract", status: "pending", talentName: "Lee Soo-young", updatedAt: "2024-12-04" },
-];
-
-const statusColors: Record<string, { bg: string; text: string }> = {
-  pending: { bg: "#fef3c7", text: "#92400e" },
-  approved: { bg: "#dcfce7", text: "#166534" },
-  rejected: { bg: "#fee2e2", text: "#991b1b" },
-};
-
-const typeIcons: Record<string, string> = {
-  visa: "🛂",
-  contract: "📝",
-  certificate: "🎓",
-  medical: "🏥",
+  version: string;
+  category: string;
+  flow_stages: string[];
 };
 
 export function DocsPage() {
-  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
-  const filtered = filter === "all" ? mockDocs : mockDocs.filter((d) => d.status === filter);
+  const [packs, setPacks] = useState<Pack[]>([]);
+  const [selectedPack, setSelectedPack] = useState<Pack | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const counts = {
-    all: mockDocs.length,
-    pending: mockDocs.filter((d) => d.status === "pending").length,
-    approved: mockDocs.filter((d) => d.status === "approved").length,
-    rejected: mockDocs.filter((d) => d.status === "rejected").length,
-  };
+  useEffect(() => {
+    fetch("http://localhost:8001/pack/store/list")
+      .then(r => r.json())
+      .then(res => {
+        setPacks(res.packs || []);
+        if (res.packs?.length > 0) setSelectedPack(res.packs[0]);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div style={{ padding: 24, paddingTop: 64 }}>Loading...</div>;
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1 style={{ marginTop: 0 }}>Documents</h1>
-      <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
-        {(["all", "pending", "approved", "rejected"] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} style={{
-            padding: "12px 20px", border: "none", borderRadius: 8, cursor: "pointer",
-            background: filter === f ? "#4f46e5" : "#f5f5f5",
-            color: filter === f ? "#fff" : "#333",
-          }}>
-            {f.charAt(0).toUpperCase() + f.slice(1)} ({counts[f]})
-          </button>
-        ))}
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {filtered.map((doc) => (
-          <div key={doc.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid #eee", borderRadius: 8, padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ fontSize: 24 }}>{typeIcons[doc.type]}</span>
-              <div>
-                <div style={{ fontWeight: 600 }}>{doc.name}</div>
-                <div style={{ color: "#666", fontSize: 14 }}>{doc.talentName}</div>
-              </div>
+    <div style={{ padding: 24, paddingTop: 64, display: "flex", gap: 24 }}>
+      {/* 사이드바 - Pack 목록 */}
+      <div style={{ width: 280, flexShrink: 0 }}>
+        <h2 style={{ marginTop: 0 }}>📦 Packs ({packs.length})</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {packs.map(pack => (
+            <div
+              key={pack.id}
+              onClick={() => setSelectedPack(pack)}
+              style={{
+                padding: 12,
+                background: selectedPack?.id === pack.id ? "#4f46e5" : "#fff",
+                color: selectedPack?.id === pack.id ? "#fff" : "#000",
+                border: "1px solid #eee",
+                borderRadius: 8,
+                cursor: "pointer",
+              }}
+            >
+              <div style={{ fontWeight: 600 }}>{pack.name}</div>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>{pack.version} • {pack.category}</div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <span style={{ color: "#888", fontSize: 14 }}>{doc.updatedAt}</span>
-              <span style={{
-                background: statusColors[doc.status].bg,
-                color: statusColors[doc.status].text,
-                padding: "6px 12px", borderRadius: 12, fontSize: 12, fontWeight: 600, textTransform: "capitalize"
-              }}>
-                {doc.status}
+          ))}
+        </div>
+      </div>
+
+      {/* 메인 - Pack 상세 */}
+      <div style={{ flex: 1 }}>
+        {selectedPack ? (
+          <div style={{ background: "#fff", border: "1px solid #eee", borderRadius: 12, padding: 24 }}>
+            <h1 style={{ marginTop: 0 }}>📦 {selectedPack.name}</h1>
+            
+            <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+              <span style={{ padding: "4px 12px", background: "#4f46e5", color: "#fff", borderRadius: 4 }}>
+                {selectedPack.version}
+              </span>
+              <span style={{ padding: "4px 12px", background: "#22c55e", color: "#fff", borderRadius: 4 }}>
+                {selectedPack.category}
               </span>
             </div>
+
+            <h3>📋 Overview</h3>
+            <p style={{ color: "#666", lineHeight: 1.6 }}>
+              {selectedPack.name} is a core automation pack for managing {selectedPack.flow_stages.join(", ")} workflows.
+              This pack integrates with the Autus ecosystem to provide seamless automation.
+            </p>
+
+            <h3>🔄 Flow Stages</h3>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {selectedPack.flow_stages.map(stage => (
+                <span key={stage} style={{
+                  padding: "6px 12px",
+                  background: "#f0f0f0",
+                  borderRadius: 20,
+                  fontSize: 13,
+                }}>
+                  {stage}
+                </span>
+              ))}
+            </div>
+
+            <h3>⚡ API Endpoints</h3>
+            <div style={{ background: "#1a1a2e", color: "#4ade80", padding: 16, borderRadius: 8, fontFamily: "monospace", fontSize: 13 }}>
+              <div>POST /pack/execute/{selectedPack.id}</div>
+              <div>GET /pack/status/{selectedPack.id}</div>
+              <div>GET /pack/history/{selectedPack.id}</div>
+            </div>
+
+            <h3>📖 Usage Example</h3>
+            <div style={{ background: "#1a1a2e", color: "#fff", padding: 16, borderRadius: 8, fontFamily: "monospace", fontSize: 13 }}>
+              <pre style={{ margin: 0 }}>{`curl -X POST http://localhost:8001/pack/execute \\
+  -H "Content-Type: application/json" \\
+  -d '{"pack_id": "${selectedPack.id}", "locale": "kr"}'`}</pre>
+            </div>
           </div>
-        ))}
+        ) : (
+          <div>Select a pack to view documentation</div>
+        )}
       </div>
     </div>
   );
