@@ -18,6 +18,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   const navItems = [
     { path: "/city", label: "Global Twin", icon: "🌍" },
+    { path: "/twin3d", label: "3D Twin", icon: "🌐" },
     { path: "/org", label: "Org", icon: "🏢" },
     { path: "/talent", label: "Talent", icon: "👤" },
     { path: "/docs", label: "Docs", icon: "📄" },

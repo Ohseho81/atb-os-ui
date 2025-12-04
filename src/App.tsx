@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { MainLayout } from "./layouts/MainLayout";
+import { MainLayout } from "./layout/MainLayout";
 import { GlobalTwinPage } from "./pages/GlobalTwinPage";
+import { GlobalTwin3DPage } from "./pages/GlobalTwin3DPage";
 import { OrgPage } from "./pages/OrgPage";
 import { TalentPage } from "./pages/TalentPage";
 import { DocsPage } from "./pages/DocsPage";
@@ -14,6 +15,8 @@ export default function App() {
       <MainLayout>
         <Routes>
           <Route path="/" element={<GlobalTwinPage />} />
+          <Route path="/city" element={<GlobalTwinPage />} />
+          <Route path="/twin3d" element={<GlobalTwin3DPage />} />
           <Route path="/org" element={<OrgPage />} />
           <Route path="/talent" element={<TalentPage />} />
           <Route path="/docs" element={<DocsPage />} />
